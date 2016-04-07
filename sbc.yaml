@@ -43,10 +43,10 @@ inputs:
      type: string
      default: cloudify-management-network
 
-node_types:
-
-  port_node_type:
-     derived_from: cloudify.nodes.SoftwareComponent
+#node_types:
+#
+#  port_node_type:
+#     derived_from: cloudify.nodes.SoftwareComponent
 
 node_templates:
 
@@ -56,114 +56,54 @@ node_templates:
       install_agent: false
       image:  { get_input: sbc_image }
       flavor: { get_input: flavor }
-    interfaces:
-      cloudify.interfaces.lifecycle:
-       create:
-         inputs:
-           args:
-             nics:
-                - net-id: { get_attribute: [ management_network, external_id ] }
-                - port-id: { get_attribute: [ lb_network_port, external_id ] }
-                - port-id: { get_attribute: [ app_network_port, external_id ] }
 
     relationships:
-        - target: fortinetPortConfig
+        - target: network_a
           type: cloudify.relationships.connected_to
-        - target: lb_network_port
+        - target: network_b
           type: cloudify.relationships.connected_to
-        - target: app_network_port
-          type: cloudify.relationships.connected_to
-
         - target: server_float_ip
           type: cloudify.openstack.server_connected_to_floating_ip
 
-  networkConfig:
-    type: cloudify.nodes.Compute
-    properties:
-      install_agent: false
-
-  fortinetPortConfig:
-    type: port_node_type
-    relationships:
-        - target: lb_network_port
-          type: cloudify.relationships.depends_on
-        - target: app_network_port
-          type: cloudify.relationships.depends_on
-        - target: networkConfig
-          type: cloudify.relationships.contained_in
-
-#  LB network
-
-  lb_network:
+  network_a:
     type: cloudify.openstack.nodes.Network
     properties:
-      resource_id: { get_input: lb_network }
-      use_external_resource : true
+      resource_id: { get_input: network_a }
+      use_external_resource : false
 
-  lb_network_subnet:
+  network_a_subnet:
     type: cloudify.openstack.nodes.Subnet
     properties:
-      resource_id: { get_input: lb_network_subnet }
-      use_external_resource : true
+      resource_id: { get_input: network_a_subnet }
+      use_external_resource : false
+      subnet:
+        ip_version: 4
+        cidr: 10.1.0.1/24
     relationships:
-      - target: lb_network
+      - target: network_a
         type: cloudify.relationships.contained_in
 
-  lb_network_port:
-    type: cloudify.openstack.nodes.Port
-    properties:
-      use_external_resource : false
-      fixed_ip:  { get_input: fw_lb_port } #172.30.0.250
-    relationships:
-      - type: cloudify.relationships.contained_in
-        target: lb_network
-      - type: cloudify.relationships.depends_on
-        target: lb_network_subnet
-
-#  APP network
-
-  app_network:
+  network_b:
     type: cloudify.openstack.nodes.Network
     properties:
-      resource_id: { get_input: app_network }
-      use_external_resource : true
+      resource_id: { get_input: network_b }
+      use_external_resource : false
 
-  app_network_subnet:
+  network_b_subnet:
     type: cloudify.openstack.nodes.Subnet
     properties:
-      resource_id: { get_input: app_network_subnet }
-      use_external_resource : true
-    relationships:
-      - target: app_network
-        type: cloudify.relationships.contained_in
-
-  app_network_port:
-    type: cloudify.openstack.nodes.Port
-    properties:
+      resource_id: { get_input: network_a_subnet }
       use_external_resource : false
-      fixed_ip: { get_input: fw_app_port } #172.20.0.4
+      subnet:
+        ip_version: 4
+        cidr: 10.2.0.1/24
     relationships:
-      - type: cloudify.relationships.contained_in
-        target: app_network
-      - type: cloudify.relationships.depends_on
-        target: app_network_subnet
+      - target: network_b
+        type: cloudify.relationships.contained_in
 
   server_float_ip:
     type: cloudify.openstack.nodes.FloatingIP
     properties:
       floatingip:
         floating_network_name: { get_input: external_network_name }
-
-  management_network:
-    type: cloudify.openstack.nodes.Network
-    properties:
-      use_external_resource: true
-      resource_id: { get_input: management_network_name }
-
-outputs:
-  fw_app_ip :
-      value : { get_attribute: [ app_network_port, fixed_ip_address ]}
-  fw_lb_ip:
-      value : { get_attribute: [ lb_network_port, fixed_ip_address ]}
-
 
