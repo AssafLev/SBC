@@ -219,4 +219,6 @@ class deviceClient(object):
 
         self._client = HTTPClient(host, port, protocol, api_version,headers, query_params, cert, trust_all)
 
+
 #        self.plugins = PluginsClient(self._client)
+
