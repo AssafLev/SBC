@@ -13,7 +13,8 @@ inputs:
        image: d1f4c679-5784-4bfa-bdff-efb3d624f826
        flavor: 196235bc-7ca5-4085-ac81-7e0242bda3f9
        userdata: |
-           #!/bin/bash -ex
+           #ini-file
+           HAUnitIdName = sbc
 
   agent_user:
     default: Admin
@@ -54,51 +55,52 @@ node_templates:
   SBChost:
     type: cloudify.openstack.nodes.Server
     properties:
+      install_agent: false
       server: { get_input: server }
 
     relationships:
-#        - target: network_lan
-#          type: cloudify.relationships.connected_to
-#        - target: network_wan
-#          type: cloudify.relationships.connected_to
         - target: server_float_ip
           type: cloudify.openstack.server_connected_to_floating_ip
+        - target: network_lan
+          type: cloudify.relationships.connected_to
+#        - target: network_wan
+#          type: cloudify.relationships.connected_to
 
-#  network_lan:
-#    type: cloudify.openstack.nodes.Network
-#    properties:
-#      resource_id: { get_input: network_lan }
-#      use_external_resource : false
-#
-#  network_lan_subnet:
-#    type: cloudify.openstack.nodes.Subnet
-#    properties:
-#      resource_id: { get_input: network_lan_subnet }
-#      use_external_resource : false
-#      subnet:
-#        ip_version: 4
-#        cidr: 10.10.1.0/24
-#    relationships:
-#      - target: network_lan
-#        type: cloudify.relationships.contained_in
-#
-#  network_wan:
-#    type: cloudify.openstack.nodes.Network
-#    properties:
-#      resource_id: { get_input: network_wan }
-#      use_external_resource : false
-#
-#  network_wan_subnet:
-#    type: cloudify.openstack.nodes.Subnet
-#    properties:
-#      resource_id: { get_input: network_wan_subnet }
-#      use_external_resource : false
-#      subnet:
-#        ip_version: 4
-#        cidr: 212.150.1.0/24
-#    relationships:
-#      - target: network_wan
-#        type: cloudify.relationships.contained_in
+  network_lan:
+    type: cloudify.openstack.nodes.Network
+    properties:
+      resource_id: { get_input: network_lan }
+      use_external_resource : false
+
+  network_lan_subnet:
+    type: cloudify.openstack.nodes.Subnet
+    properties:
+      resource_id: { get_input: network_lan_subnet }
+      use_external_resource : false
+      subnet:
+        ip_version: 4
+        cidr: 10.10.1.0/24
+    relationships:
+      - target: network_lan
+        type: cloudify.relationships.contained_in
+
+  network_wan:
+    type: cloudify.openstack.nodes.Network
+    properties:
+      resource_id: { get_input: network_wan }
+      use_external_resource : false
+
+  network_wan_subnet:
+    type: cloudify.openstack.nodes.Subnet
+    properties:
+      resource_id: { get_input: network_wan_subnet }
+      use_external_resource : false
+      subnet:
+        ip_version: 4
+        cidr: 212.150.1.0/24
+    relationships:
+      - target: network_wan
+        type: cloudify.relationships.contained_in
 
   server_float_ip:
     type: cloudify.openstack.nodes.FloatingIP
