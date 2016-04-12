@@ -10,11 +10,11 @@ inputs:
 
   server:
      default:
-       image: d1f4c679-5784-4bfa-bdff-efb3d624f826
+       image: 45972b85-fff4-496b-800f-6b66310e0913 # SBC d1f4c679-5784-4bfa-bdff-efb3d624f826
        flavor: 196235bc-7ca5-4085-ac81-7e0242bda3f9
-       userdata: |
-           #ini-file
-           HAUnitIdName = sbc
+#       userdata: |
+#           #ini-file
+#           HAUnitIdName = sbc
 
   agent_user:
     default: Admin
@@ -61,10 +61,10 @@ node_templates:
     relationships:
         - target: server_float_ip
           type: cloudify.openstack.server_connected_to_floating_ip
-        - target: network_lan
+        - target: network_lan_port
           type: cloudify.relationships.connected_to
-#        - target: network_wan
-#          type: cloudify.relationships.connected_to
+        - target: network_wan_port
+          type: cloudify.relationships.connected_to
 
   network_lan:
     type: cloudify.openstack.nodes.Network
@@ -84,6 +84,17 @@ node_templates:
       - target: network_lan
         type: cloudify.relationships.contained_in
 
+  network_lan_port:
+    type: cloudify.openstack.nodes.Port
+    properties:
+      use_external_resource : false
+      fixed_ip: 10.10.1.5
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: network_lan
+      - type: cloudify.relationships.depends_on
+        target: network_lan_subnet
+
   network_wan:
     type: cloudify.openstack.nodes.Network
     properties:
@@ -97,10 +108,21 @@ node_templates:
       use_external_resource : false
       subnet:
         ip_version: 4
-        cidr: 212.150.1.0/24
+        cidr: 20.20.1.0/24
     relationships:
       - target: network_wan
         type: cloudify.relationships.contained_in
+
+  network_wan_port:
+    type: cloudify.openstack.nodes.Port
+    properties:
+      use_external_resource : false
+      fixed_ip: 20.20.1.5
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: network_wan
+      - type: cloudify.relationships.depends_on
+        target: network_wan_subnet
 
   server_float_ip:
     type: cloudify.openstack.nodes.FloatingIP
