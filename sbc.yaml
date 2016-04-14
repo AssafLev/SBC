@@ -10,11 +10,16 @@ inputs:
 
   server:
      default:
-       image: 45972b85-fff4-496b-800f-6b66310e0913 # SBC d1f4c679-5784-4bfa-bdff-efb3d624f826
+       image: d1f4c679-5784-4bfa-bdff-efb3d624f826
        flavor: 196235bc-7ca5-4085-ac81-7e0242bda3f9
-#       userdata: |
-#           #ini-file
-#           HAUnitIdName = sbc
+       userdata: |
+           #network-if
+           0 cloudify-mgmt 5 - - - -
+           1 lan 6 10.10.1.5 24 - -
+           2 wan 5 20.20.1.5 24 - -
+           #ini-file
+           EnableWebAccessFromAllInterfaces = 1
+
 
   agent_user:
     default: Admin
