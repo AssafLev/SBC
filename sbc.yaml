@@ -12,14 +12,15 @@ inputs:
      default:
        image: d1f4c679-5784-4bfa-bdff-efb3d624f826
        flavor: 196235bc-7ca5-4085-ac81-7e0242bda3f9
-       userdata: |
-           #network-if
-           0 cloudify-mgmt 5 - - - -
-           1 lan 6 10.10.1.5 24 - -
-           2 wan 5 20.20.1.5 24 - -
-           #ini-file
-           EnableWebAccessFromAllInterfaces = 1
-
+       user-data: |
+         #network-if
+         0 cloudify-mgmt 5 - - - -
+         1 lan 6 10.10.1.5 24 - -
+         2 wan 5 20.20.1.5 24 - -
+         #ini-file
+         EnableWebAccessFromAllInterfaces = 1
+       args: |
+         config-drive true
 
   agent_user:
     default: Admin
