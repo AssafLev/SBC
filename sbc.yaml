@@ -19,8 +19,8 @@ inputs:
          2 wan 5 20.20.1.5 24 - -
          #ini-file
          EnableWebAccessFromAllInterfaces = 1
-       args: |
-         config-drive true
+       config-drive: |
+         true
 
   agent_user:
     default: Admin
@@ -63,6 +63,13 @@ node_templates:
     properties:
       install_agent: false
       server: { get_input: server }
+
+#    interfaces:
+#      cloudify.interfaces.lifecycle:
+#        create:
+#          inputs:
+#            args:
+#              config_drive: true
 
     relationships:
         - target: server_float_ip
