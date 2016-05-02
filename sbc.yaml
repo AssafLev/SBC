@@ -8,20 +8,6 @@ imports:
 
 inputs:
 
-  server:
-     default:
-       image: d1f4c679-5784-4bfa-bdff-efb3d624f826
-       flavor: 196235bc-7ca5-4085-ac81-7e0242bda3f9
-       user-data: |
-         #network-if
-         0 cloudify-mgmt 5 - - - -
-         1 lan 6 10.10.1.5 24 - -
-         2 wan 5 20.20.1.5 24 - -
-         #ini-file
-         EnableWebAccessFromAllInterfaces = 1
-       config-drive: |
-         true
-
   agent_user:
     default: Admin
 
@@ -62,14 +48,24 @@ node_templates:
     type: cloudify.openstack.nodes.Server
     properties:
       install_agent: false
-      server: { get_input: server }
+      image: d1f4c679-5784-4bfa-bdff-efb3d624f826
+      flavor: 196235bc-7ca5-4085-ac81-7e0242bda3f9
 
-#    interfaces:
-#      cloudify.interfaces.lifecycle:
-#        create:
-#          inputs:
-#            args:
-#              config_drive: true
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+         inputs:
+           args:
+              config_drive: true
+              name: AudioCodes-SBC-Server
+              userdata: |
+                #network-if
+                0 cloudify-mgmt 5 - - - -
+                1 lan 6 10.10.1.5 24 - -
+                2 wan 5 20.20.1.5 24 - -
+                #dhcp-address
+                #ini-file
+                EnableWebAccessFromAllInterfaces = 1
 
     relationships:
         - target: server_float_ip
